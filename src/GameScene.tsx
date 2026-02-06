@@ -5,6 +5,10 @@ export default class GameScene extends Phaser.Scene {
     super("game");
   }
 
+  preload() {
+    this.load.image("heart", "/heart.png");
+    }
+
   create() {
     // Question
     this.add.text(180, 60, "Will you be my Valentine?", {
@@ -37,15 +41,42 @@ export default class GameScene extends Phaser.Scene {
     // Input
     this.input.on("pointermove", this.aim, this);
     this.input.on("pointerdown", this.shoot, this);
+    this.input.on("pointermove", (pointer) => {
+        if (this.arrowFired) return;
+
+        const distance = Phaser.Math.Distance.Between(
+            pointer.x,
+            pointer.y,
+            this.noTarget.x,
+            this.noTarget.y
+        );
+
+        if (distance < 100) {
+            this.tweenNo();
+        }
+    });
 
     // Collisions
     this.physics.add.collider(this.arrow, this.yesTarget, () => {
-      this.endGame("YES 💖");
+        this.particles.emitParticleAt(
+            this.yesTarget.x,
+            this.yesTarget.y
+        );
+        this.endGame("YES 💖");
     });
 
     this.physics.add.collider(this.arrow, this.noTarget, () => {
       this.endGame("NO 💔");
     });
+
+    this.particles = this.add.particles(0, 0, "heart", {
+        speed: { min: 100, max: 300 },
+        scale: { start: 0.5, end: 0 },
+        lifespan: 800,
+        quantity: 20,
+        emitting: false,
+    });
+
   }
 
   aim(pointer) {
@@ -72,6 +103,29 @@ export default class GameScene extends Phaser.Scene {
     this.aimLine.setVisible(false);
   }
 
+  tweenNo() {
+        const newX = Phaser.Math.Between(50, 310);
+        const newY = Phaser.Math.Between(180, 300);
+
+        this.tweens.add({
+            targets: this.noTarget,
+            x: newX,
+            y: newY,
+            duration: 200,
+            ease: "Power2",
+        });
+    }
+
+    update() {
+        if (this.arrowFired) {
+            this.arrow.rotation =
+            Math.atan2(
+                this.arrow.body.velocity.y,
+                this.arrow.body.velocity.x
+            ) + Math.PI / 2;
+        }
+    }
+
   endGame(result) {
     this.arrow.body.setVelocity(0);
     this.add.rectangle(180, 320, 280, 120, 0xffffff);
@@ -80,5 +134,14 @@ export default class GameScene extends Phaser.Scene {
       color: "#ff3366",
       fontStyle: "bold",
     }).setOrigin(0.5);
+
+    const replay = this.add.text(180, 380, "Try again ↺", {
+        fontSize: "16px",
+        color: "#ff3366",
+    }).setOrigin(0.5).setInteractive();
+
+    replay.on("pointerdown", () => {
+        this.scene.restart();
+    });
   }
 }
