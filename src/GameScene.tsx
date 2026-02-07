@@ -6,10 +6,17 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("arrow", "/arrow.png");
     this.load.image("heart", "/heart.png");
     }
 
   create() {
+    this.scale.on("resize", (gameSize) => {
+      const { width, height } = gameSize;
+      this.cameras.resize(width, height);
+    });
+
+
     // Question
     this.add.text(180, 60, "Will you be my Valentine?", {
       fontSize: "20px",
@@ -29,10 +36,20 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.noTarget, true);
 
     // Arrow
-    this.arrow = this.add.rectangle(180, 560, 6, 40, 0x333333);
-    this.physics.add.existing(this.arrow);
+    this.arrow = this.physics.add.sprite(180, 560, "arrow");
+    this.arrow.setScale(0.1);
+    this.arrow.setCollideWorldBounds(false);
     this.arrow.body.allowGravity = false;
     this.arrowFired = false;
+    this.arrow.body.setSize(
+      this.arrow.width * 0.3,
+      this.arrow.height * 0.8
+    );
+    this.arrow.body.setOffset(
+      this.arrow.width * 0.35,
+      this.arrow.height * 0.1
+    );
+
 
     // Aim line
     this.aimLine = this.add.line(0, 0, 0, 0, 0, 0, 0xff99aa)
@@ -88,6 +105,13 @@ export default class GameScene extends Phaser.Scene {
       pointer.x,
       pointer.y
     );
+
+    this.arrow.rotation =
+      Math.atan2(
+        pointer.y - this.arrow.y,
+        pointer.x - this.arrow.x
+    ) + Math.PI / 2;
+
   }
 
   shoot(pointer) {
@@ -117,14 +141,15 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.arrowFired) {
-            this.arrow.rotation =
-            Math.atan2(
-                this.arrow.body.velocity.y,
-                this.arrow.body.velocity.x
-            ) + Math.PI / 2;
-        }
+      if (this.arrowFired) {
+        this.arrow.rotation =
+          Math.atan2(
+            this.arrow.body.velocity.y,
+            this.arrow.body.velocity.x
+          ) + Math.PI / 2;
+      }
     }
+
 
   endGame(result) {
     this.arrow.body.setVelocity(0);
