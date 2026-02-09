@@ -1,6 +1,17 @@
 import Phaser from "phaser";
 
+
 export default class GameScene extends Phaser.Scene {
+  arrow!: Phaser.Physics.Arcade.Sprite;
+  yesTarget!: Phaser.GameObjects.Rectangle;
+  noTarget!: Phaser.GameObjects.Rectangle;
+  aimLine!: Phaser.GameObjects.Line;
+  particles!: Phaser.GameObjects.Particles.ParticleEmitter;
+  arrowFired!: boolean;
+  gameOver!: boolean;
+  startX!: number;
+  startY!: number;
+
   constructor() {
     super("game");
   }
@@ -11,6 +22,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
   create() {
+    this.gameOver = false;
+
     this.scale.on("resize", (gameSize) => {
       const { width, height } = gameSize;
       this.cameras.resize(width, height);
@@ -27,10 +40,12 @@ export default class GameScene extends Phaser.Scene {
     // YES target
     this.yesTarget = this.add.rectangle(90, 220, 80, 40, 0xff5c8a);
     this.add.text(90, 220, "YES", { color: "#fff" }).setOrigin(0.5);
+    this.yesTarget.setScale(1.5);
 
     // NO target
     this.noTarget = this.add.rectangle(270, 220, 80, 40, 0x555555);
     this.add.text(270, 220, "NO", { color: "#fff" }).setOrigin(0.5);
+    this.noTarget.setScale(0.5);
 
     this.physics.add.existing(this.yesTarget, true);
     this.physics.add.existing(this.noTarget, true);
@@ -58,20 +73,10 @@ export default class GameScene extends Phaser.Scene {
     // Input
     this.input.on("pointermove", this.aim, this);
     this.input.on("pointerdown", this.shoot, this);
-    this.input.on("pointermove", (pointer) => {
-        if (this.arrowFired) return;
-
-        const distance = Phaser.Math.Distance.Between(
-            pointer.x,
-            pointer.y,
-            this.noTarget.x,
-            this.noTarget.y
-        );
-
-        if (distance < 100) {
-            this.tweenNo();
-        }
+    this.input.once("pointerdown", () => {
+      this.sound.context.resume();
     });
+
 
     // Collisions
     this.physics.add.collider(this.arrow, this.yesTarget, () => {
@@ -94,6 +99,8 @@ export default class GameScene extends Phaser.Scene {
         emitting: false,
     });
 
+    this.startX = this.arrow.x;
+    this.startY = this.arrow.y;
   }
 
   aim(pointer) {
@@ -127,19 +134,6 @@ export default class GameScene extends Phaser.Scene {
     this.aimLine.setVisible(false);
   }
 
-  tweenNo() {
-        const newX = Phaser.Math.Between(50, 310);
-        const newY = Phaser.Math.Between(180, 300);
-
-        this.tweens.add({
-            targets: this.noTarget,
-            x: newX,
-            y: newY,
-            duration: 200,
-            ease: "Power2",
-        });
-    }
-
     update() {
       if (this.arrowFired) {
         this.arrow.rotation =
@@ -147,11 +141,34 @@ export default class GameScene extends Phaser.Scene {
             this.arrow.body.velocity.y,
             this.arrow.body.velocity.x
           ) + Math.PI / 2;
+
+        // If arrow leaves screen → reset
+        if (
+          this.arrow.y > this.scale.height + 50 ||
+          this.arrow.x < -50 ||
+          this.arrow.x > this.scale.width + 50
+        ) {
+          this.resetArrow();
+        }
       }
     }
 
+    resetArrow() {
+      this.arrowFired = false;
+
+      this.arrow.body.stop();
+      this.arrow.body.allowGravity = false;
+
+      this.arrow.setPosition(this.startX, this.startY);
+      this.arrow.setRotation(0);
+
+      this.aimLine.setVisible(true);
+    }
 
   endGame(result) {
+    if (this.gameOver) return;
+    this.gameOver = true;
+
     this.arrow.body.setVelocity(0);
     this.add.rectangle(180, 320, 280, 120, 0xffffff);
     this.add.text(180, 320, result, {
