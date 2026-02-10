@@ -125,6 +125,27 @@ export default class NoChallengeScene extends Phaser.Scene {
     this.timeLeft--;
     this.timerText.setText(`${this.timeLeft}s`);
 
+    // Increase heart spawn rate when time hits 7 seconds
+    if (this.timeLeft === 15) {
+      this.time.removeAllEvents();
+      
+      // Faster spawn - every 250ms instead of 400ms
+      this.time.addEvent({
+        delay: 200,
+        loop: true,
+        callback: this.spawnHeart,
+        callbackScope: this,
+      });
+
+      // Re-add the timer tick
+      this.time.addEvent({
+        delay: 1000,
+        loop: true,
+        callback: this.tick,
+        callbackScope: this,
+      });
+    }
+
     if (this.timeLeft <= 0) {
         this.scene.start("game", { noValidated: true });
     }

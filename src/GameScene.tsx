@@ -28,8 +28,8 @@ export default class GameScene extends Phaser.Scene {
       "Ouch! Love overload! 💘 Back to the question!",
       "Missed your chance! 😅 The hearts had other plans!",
       "Hearts got you! ❤️‍🔥 Don't worry… love bites sometimes!",
-      "Oof… crushed by 15 hearts! 💔😂 Love is ruthless!",
-      "Hearts 15 – you lost… Cupid laughs at your aim! 💘",
+      "Oof… crushed by hearts! 💔😂 Love is ruthless!",
+      "Ooh Hearts… Cupid laughs at your aim! 💘",
       "Cupid's trolling you! 😎💘 Aim better next time!",
       "Dodging hearts is harder than dodging love! ❤️💨",
       "Oops! Someone got heartbroken 😏… But love waits!",
@@ -60,7 +60,7 @@ export default class GameScene extends Phaser.Scene {
             duration: 1000,
             ease: "Power2",
             yoyo: true,
-            hold: 1500,
+            hold: 5000,
             onComplete: () => msg.destroy()
         });
     }
