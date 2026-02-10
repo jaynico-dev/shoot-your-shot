@@ -183,7 +183,7 @@ export default class NoChallengeScene extends Phaser.Scene {
     this.cameras.main.once(
         Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
         () => {
-        this.scene.start("game");
+            this.scene.start("game", { fromNoChallenge: true });
         }
     );
   }

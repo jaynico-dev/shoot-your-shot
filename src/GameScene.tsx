@@ -23,6 +23,48 @@ export default class GameScene extends Phaser.Scene {
   create() {
     const data = this.scene.settings.data as any;
 
+    const messages = [
+      "Whoa! Hearts everywhere! 😵 Did Cupid just attack you?",
+      "Ouch! Love overload! 💘 Back to the question!",
+      "Missed your chance! 😅 The hearts had other plans!",
+      "Hearts got you! ❤️‍🔥 Don’t worry… love bites sometimes!",
+      "Oof… crushed by 15 hearts! 💔😂 Love is ruthless!",
+      "Hearts 15 – you lost… Cupid laughs at your aim! 💘",
+      "Cupid’s trolling you! 😎💘 Aim better next time!",
+      "Dodging hearts is harder than dodging love! ❤️💨",
+      "Oops! Someone got heartbroken 😏… But love waits!",
+      "Yikes! Hearts everywhere! ❤️🤯 Even arrows can’t save you!",
+      "So close… yet so covered in love! 💖😂",
+      "Careful! Love comes at you fast! 💘💨"
+    ];
+
+    const msgText = messages[Phaser.Math.Between(0, messages.length - 1)];
+
+    // If returning from NoChallengeScene after failing (hit 15 hearts)
+    if (data?.fromNoChallenge) {
+        const { width, height } = this.scale;
+        const msg = this.add.text(width / 2, height / 2, 
+            msgText, {
+            fontSize: "20px",
+            color: "#ff3366",
+            fontStyle: "bold",
+            align: "center",
+            wordWrap: { width: 300 }
+        }).setOrigin(0.5);
+
+        // Animate it to appear and fade
+        msg.setAlpha(0);
+        this.tweens.add({
+            targets: msg,
+            alpha: 1,
+            duration: 1000,
+            ease: "Power2",
+            yoyo: true,
+            hold: 1500,
+            onComplete: () => msg.destroy()
+        });
+    }
+
     if (data?.noValidated) {
       this.endGame("NO 💔 (Confirmed)");
     }
