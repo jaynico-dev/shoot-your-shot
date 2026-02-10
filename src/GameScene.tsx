@@ -4,7 +4,7 @@ export default class GameScene extends Phaser.Scene {
   arrow!: Phaser.Physics.Arcade.Sprite;
   yesTarget!: Phaser.GameObjects.Rectangle;
   noTarget!: Phaser.GameObjects.Rectangle;
-  aimLine!: Phaser.GameObjects.Line;
+  aimLine!: Phaser.GameObjects.Graphics;
   particles!: Phaser.GameObjects.Particles.ParticleEmitter;
   arrowFired!: boolean;
   gameOver!: boolean;
@@ -28,8 +28,8 @@ export default class GameScene extends Phaser.Scene {
       "Ouch! Love overload! 💘 Back to the question!",
       "Missed your chance! 😅 The hearts had other plans!",
       "Hearts got you! ❤️‍🔥 Don't worry… love bites sometimes!",
-      "Oof… crushed by hearts! 💔😂 Love is ruthless!",
-      "Ooh that Hearts… Cupid laughs at your aim! 💘",
+      "Oof… crushed by 15 hearts! 💔😂 Love is ruthless!",
+      "Hearts 15 – you lost… Cupid laughs at your aim! 💘",
       "Cupid's trolling you! 😎💘 Aim better next time!",
       "Dodging hearts is harder than dodging love! ❤️💨",
       "Oops! Someone got heartbroken 😏… But love waits!",
@@ -60,7 +60,7 @@ export default class GameScene extends Phaser.Scene {
             duration: 1000,
             ease: "Power2",
             yoyo: true,
-            hold: 3500,
+            hold: 1500,
             onComplete: () => msg.destroy()
         });
     }
@@ -113,9 +113,8 @@ export default class GameScene extends Phaser.Scene {
     );
 
 
-    // Aim line
-    this.aimLine = this.add.line(0, 0, 0, 0, 0, 0, 0xff99aa)
-      .setLineWidth(2);
+    // Aim line (dotted)
+    this.aimLine = this.add.graphics();
 
     // Input
     this.input.on("pointermove", this.aim, this);
@@ -153,12 +152,38 @@ export default class GameScene extends Phaser.Scene {
   aim(pointer) {
     if (this.arrowFired) return;
 
-    this.aimLine.setTo(
-      this.arrow.x,
-      this.arrow.y,
-      pointer.x,
-      pointer.y
-    );
+    // Clear previous line
+    this.aimLine.clear();
+    
+    const startX = this.arrow.x;
+    const startY = this.arrow.y;
+    const endX = pointer.x;
+    const endY = pointer.y;
+
+    // Draw dotted line
+    const distance = Phaser.Math.Distance.Between(startX, startY, endX, endY);
+    const dashLength = 10;
+    const gapLength = 5;
+    const totalLength = dashLength + gapLength;
+    const numSegments = Math.floor(distance / totalLength);
+
+    this.aimLine.beginPath();
+    this.aimLine.lineStyle(2, 0xff99aa);
+
+    for (let i = 0; i < numSegments; i++) {
+      const t1 = (i * totalLength) / distance;
+      const t2 = ((i * totalLength) + dashLength) / distance;
+      
+      const x1 = startX + (endX - startX) * t1;
+      const y1 = startY + (endY - startY) * t1;
+      const x2 = startX + (endX - startX) * t2;
+      const y2 = startY + (endY - startY) * t2;
+
+      this.aimLine.moveTo(x1, y1);
+      this.aimLine.lineTo(x2, y2);
+    }
+
+    this.aimLine.strokePath();
 
     this.arrow.rotation =
       Math.atan2(
@@ -182,34 +207,29 @@ export default class GameScene extends Phaser.Scene {
   }
 
     update() {
-      if (this.arrowFired) {
+      if (this.arrowFired && !this.gameOver) {
         this.arrow.rotation =
           Math.atan2(
             this.arrow.body.velocity.y,
             this.arrow.body.velocity.x
           ) + Math.PI / 2;
 
-        // If arrow leaves screen → reset
+        // If arrow leaves screen → respawn immediately
         if (
-          this.arrow.y > this.scale.height + 50 ||
-          this.arrow.x < -50 ||
-          this.arrow.x > this.scale.width + 50
+          this.arrow.y > this.scale.height + 50 ||  // Bottom
+          this.arrow.y < -50 ||                      // Top (ADDED!)
+          this.arrow.x < -50 ||                      // Left
+          this.arrow.x > this.scale.width + 50       // Right
         ) {
-          this.resetArrow();
+          // Immediate respawn
+          this.arrowFired = false;
+          this.arrow.body.stop();
+          this.arrow.body.allowGravity = false;
+          this.arrow.setPosition(this.startX, this.startY);
+          this.arrow.setRotation(0);
+          this.aimLine.setVisible(true);
         }
       }
-    }
-
-    resetArrow() {
-      this.arrowFired = false;
-
-      this.arrow.body.stop();
-      this.arrow.body.allowGravity = false;
-
-      this.arrow.setPosition(this.startX, this.startY);
-      this.arrow.setRotation(0);
-
-      this.aimLine.setVisible(true);
     }
 
   endGame(result) {
