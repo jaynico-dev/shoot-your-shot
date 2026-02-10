@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 
-
 export default class GameScene extends Phaser.Scene {
   arrow!: Phaser.Physics.Arcade.Sprite;
   yesTarget!: Phaser.GameObjects.Rectangle;
@@ -22,6 +21,12 @@ export default class GameScene extends Phaser.Scene {
     }
 
   create() {
+    const data = this.scene.settings.data as any;
+
+    if (data?.noValidated) {
+      this.endGame("NO 💔 (Confirmed)");
+    }
+
     this.gameOver = false;
 
     this.scale.on("resize", (gameSize) => {
@@ -88,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.physics.add.collider(this.arrow, this.noTarget, () => {
-      this.endGame("NO 💔");
+      this.scene.start("no-challenge");
     });
 
     this.particles = this.add.particles(0, 0, "heart", {
