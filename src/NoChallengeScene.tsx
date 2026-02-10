@@ -7,7 +7,7 @@ export default class NoChallengeScene extends Phaser.Scene {
   hearts!: Phaser.Physics.Arcade.Group;
 
   hits = 0;
-  timeLeft = 20;
+  timeLeft = 25;
 
   hitText!: Phaser.GameObjects.Text;
   timerText!: Phaser.GameObjects.Text;
@@ -19,7 +19,7 @@ export default class NoChallengeScene extends Phaser.Scene {
   init() {
     this.endTriggered = false;
     this.hits = 0;
-    this.timeLeft = 20;
+    this.timeLeft = 25;
   }
 
   preload() {
@@ -91,7 +91,7 @@ export default class NoChallengeScene extends Phaser.Scene {
   spawnHeart() {
     const x = Phaser.Math.Between(20, this.scale.width - 20);
     const heart = this.hearts.create(x, -20, "heart");
-    heart.setScale(0.08);
+    heart.setScale(0.1);
   }
 
   onHeartHit(player: any, heart: any) {
@@ -108,7 +108,7 @@ export default class NoChallengeScene extends Phaser.Scene {
   }
 
   updateFace() {
-    if (this.hits >= 10) {
+    if (this.hits >= 12) {
         this.player.setTexture("love");
     } else if (this.hits >= 6) {
         this.player.setTexture("amused");
@@ -159,7 +159,7 @@ export default class NoChallengeScene extends Phaser.Scene {
 
     // Text: "I knew it."
     const text = this.add
-        .text(width / 2, height / 2 + 80, "I knew it.", {
+        .text(width / 2, height / 2 + 80, "I knew it 😏", {
         fontSize: "28px",
         color: "#ff3366",
         fontStyle: "bold",

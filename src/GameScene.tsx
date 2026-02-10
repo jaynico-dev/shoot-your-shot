@@ -27,13 +27,13 @@ export default class GameScene extends Phaser.Scene {
       "Whoa! Hearts everywhere! 😵 Did Cupid just attack you?",
       "Ouch! Love overload! 💘 Back to the question!",
       "Missed your chance! 😅 The hearts had other plans!",
-      "Hearts got you! ❤️‍🔥 Don’t worry… love bites sometimes!",
-      "Oof… crushed by 15 hearts! 💔😂 Love is ruthless!",
-      "Hearts 15 – you lost… Cupid laughs at your aim! 💘",
-      "Cupid’s trolling you! 😎💘 Aim better next time!",
+      "Hearts got you! ❤️‍🔥 Don't worry… love bites sometimes!",
+      "Oof… crushed by hearts! 💔😂 Love is ruthless!",
+      "Ooh that Hearts… Cupid laughs at your aim! 💘",
+      "Cupid's trolling you! 😎💘 Aim better next time!",
       "Dodging hearts is harder than dodging love! ❤️💨",
       "Oops! Someone got heartbroken 😏… But love waits!",
-      "Yikes! Hearts everywhere! ❤️🤯 Even arrows can’t save you!",
+      "Yikes! Hearts everywhere! ❤️🤯 Even arrows can't save you!",
       "So close… yet so covered in love! 💖😂",
       "Careful! Love comes at you fast! 💘💨"
     ];
@@ -60,7 +60,7 @@ export default class GameScene extends Phaser.Scene {
             duration: 1000,
             ease: "Power2",
             yoyo: true,
-            hold: 1500,
+            hold: 3500,
             onComplete: () => msg.destroy()
         });
     }
@@ -217,20 +217,110 @@ export default class GameScene extends Phaser.Scene {
     this.gameOver = true;
 
     this.arrow.body.setVelocity(0);
-    this.add.rectangle(180, 320, 280, 120, 0xffffff);
-    this.add.text(180, 320, result, {
-      fontSize: "28px",
-      color: "#ff3366",
-      fontStyle: "bold",
-    }).setOrigin(0.5);
 
-    const replay = this.add.text(180, 380, "Try again ↺", {
-        fontSize: "16px",
+    if (result.includes("YES")) {
+      // Special YES celebration!
+      const { width, height } = this.scale;
+      
+      // Infinite fireworks of hearts everywhere!
+      const heartExplosion = () => {
+        this.particles.emitParticleAt(
+          Phaser.Math.Between(50, width - 50),
+          Phaser.Math.Between(100, height - 100)
+        );
+      };
+
+      // Initial burst
+      for (let i = 0; i < 8; i++) {
+        this.time.delayedCall(i * 200, heartExplosion);
+      }
+
+      // Continue infinitely every 300ms
+      this.time.addEvent({
+        delay: 300,
+        callback: heartExplosion,
+        loop: true
+      });
+
+      // Playful messages that rotate
+      const yesMessages = [
+        "BULLSEYE! 🎯💘\nKnew you had it in you!",
+        "HA! You actually did it! 😎\nCupid would be proud!",
+        "YESSS! 🎉💖\nBest. Shot. Ever.",
+        "YOU DID IT! 💘✨\nWorth all those misses, huh?",
+        "BOOM! Direct hit! 💥❤️\nYou're officially smooth!",
+        "NAILED IT! 🏹💕\nGuess love wins after all!",
+        "SCORE! 🎊💖\nThat's my Valentine!",
+        "PERFECT AIM! 🎯❤️\nCupid's got nothing on you!"
+      ];
+
+      const chosenMsg = yesMessages[Phaser.Math.Between(0, yesMessages.length - 1)];
+
+      // Animated background
+      const bg = this.add.rectangle(width / 2, height / 2, width, height, 0xff3366, 0);
+      this.tweens.add({
+        targets: bg,
+        alpha: 0.15,
+        duration: 500,
+        yoyo: true,
+        repeat: 3
+      });
+
+      // Main message box
+      const msgBox = this.add.rectangle(width / 2, height / 2, 280, 160, 0xffffff);
+      msgBox.setStrokeStyle(4, 0xff3366);
+      msgBox.setScale(0);
+
+      const msgText = this.add.text(width / 2, height / 2 - 20, chosenMsg, {
+        fontSize: "22px",
         color: "#ff3366",
-    }).setOrigin(0.5).setInteractive();
+        fontStyle: "bold",
+        align: "center",
+        wordWrap: { width: 250 }
+      }).setOrigin(0.5).setAlpha(0);
 
-    replay.on("pointerdown", () => {
-        this.scene.restart();
-    });
+      // Cheeky subtitle
+      const subText = this.add.text(width / 2, height / 2 + 50, 
+        "Finally got the right one! 😏", {
+        fontSize: "14px",
+        color: "#666",
+        fontStyle: "italic",
+        align: "center"
+      }).setOrigin(0.5).setAlpha(0);
+
+      // Animate everything in
+      this.tweens.add({
+        targets: msgBox,
+        scale: 1,
+        duration: 400,
+        ease: "Back.easeOut"
+      });
+
+      this.tweens.add({
+        targets: [msgText, subText],
+        alpha: 1,
+        duration: 600,
+        delay: 200
+      });
+
+      // Make YES target pulse with joy INFINITELY
+      this.tweens.add({
+        targets: this.yesTarget,
+        scaleX: 1.7,
+        scaleY: 1.7,
+        duration: 300,
+        yoyo: true,
+        repeat: -1  // -1 means infinite!
+      });
+
+    } else {
+      // NO result (confirmed rejection)
+      this.add.rectangle(180, 320, 280, 120, 0xffffff);
+      this.add.text(180, 320, result, {
+        fontSize: "28px",
+        color: "#ff3366",
+        fontStyle: "bold",
+      }).setOrigin(0.5);
+    }
   }
 }
