@@ -94,7 +94,7 @@ export default class GameScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Tap to start instruction
-    this.tapToStartText = this.add.text(180, 400, "👆 Tap to start 👆", {
+    this.tapToStartText = this.add.text(180, 400, "Shoot your shot! 💘", {
       fontSize: "18px",
       color: "#ff3366",
       fontStyle: "bold",
