@@ -36,7 +36,7 @@ export default class NoChallengeScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor("#ffe6eb");
 
     // Player (simple circle / reuse arrow if you want)
-    this.player = this.physics.add.sprite(width / 2, height - 100, "unamused");
+    this.player = this.physics.add.sprite(width / 2, height - 120, "unamused");
     this.player.setScale(0.1);
     this.player.setCollideWorldBounds(true);
 
