@@ -41,7 +41,7 @@ export default class NoChallengeScene extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
 
     // Controls
-    this.input.on("pointermove", (p) => {
+    this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
       this.player.x = p.x;
     });
 
@@ -94,7 +94,7 @@ export default class NoChallengeScene extends Phaser.Scene {
     heart.setScale(0.1);
   }
 
-  onHeartHit(player: any, heart: any) {
+  onHeartHit(_player: any, heart: any) {
     heart.destroy();
     this.hits++;
 

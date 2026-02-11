@@ -1,6 +1,10 @@
 import Phaser from "phaser";
 
 export default class GameScene extends Phaser.Scene {
+  private getArrowBody(): Phaser.Physics.Arcade.Body {
+    return this.arrow.body as Phaser.Physics.Arcade.Body;
+  }
+
   arrow!: Phaser.Physics.Arcade.Sprite;
   yesTarget!: Phaser.GameObjects.Rectangle;
   noTarget!: Phaser.GameObjects.Rectangle;
@@ -71,7 +75,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.gameOver = false;
 
-    this.scale.on("resize", (gameSize) => {
+    this.scale.on("resize", (gameSize: Phaser.Structs.Size) => {
       const { width, height } = gameSize;
       this.cameras.resize(width, height);
     });
@@ -98,16 +102,16 @@ export default class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.noTarget, true);
 
     // Arrow
-    this.arrow = this.physics.add.sprite(180, 560, "arrow");
+    this.arrow = this.physics.add.sprite(180, 560, "arrow") as Phaser.Physics.Arcade.Sprite;
     this.arrow.setScale(0.1);
     this.arrow.setCollideWorldBounds(false);
-    this.arrow.body.allowGravity = false;
+    this.getArrowBody().setAllowGravity(false);
     this.arrowFired = false;
-    this.arrow.body.setSize(
+    this.getArrowBody().setSize(
       this.arrow.width * 0.3,
       this.arrow.height * 0.8
     );
-    this.arrow.body.setOffset(
+    this.getArrowBody().setOffset(
       this.arrow.width * 0.35,
       this.arrow.height * 0.1
     );
@@ -120,7 +124,9 @@ export default class GameScene extends Phaser.Scene {
     this.input.on("pointermove", this.aim, this);
     this.input.on("pointerdown", this.shoot, this);
     this.input.once("pointerdown", () => {
-      this.sound.context.resume();
+      if (this.sound instanceof Phaser.Sound.WebAudioSoundManager) {
+        this.sound.context.resume();
+      }
     });
 
 
@@ -149,7 +155,7 @@ export default class GameScene extends Phaser.Scene {
     this.startY = this.arrow.y;
   }
 
-  aim(pointer) {
+  aim(pointer: Phaser.Input.Pointer) {
     if (this.arrowFired) return;
 
     // Clear previous line
@@ -193,25 +199,27 @@ export default class GameScene extends Phaser.Scene {
 
   }
 
-  shoot(pointer) {
+  shoot(pointer: Phaser.Input.Pointer) {
+    const body = this.getArrowBody();
     if (this.arrowFired) return;
 
     this.arrowFired = true;
-    this.arrow.body.allowGravity = true;
+    body.setAllowGravity(true);
 
     const dx = pointer.x - this.arrow.x;
     const dy = pointer.y - this.arrow.y;
 
-    this.arrow.body.setVelocity(dx * 2, dy * 2);
+    body.setVelocity(dx * 2, dy * 2);
     this.aimLine.setVisible(false);
   }
 
     update() {
+      const body = this.getArrowBody();
       if (this.arrowFired && !this.gameOver) {
         this.arrow.rotation =
           Math.atan2(
-            this.arrow.body.velocity.y,
-            this.arrow.body.velocity.x
+            body.velocity.y,
+            body.velocity.x
           ) + Math.PI / 2;
 
         // If arrow leaves screen → respawn immediately
@@ -223,8 +231,9 @@ export default class GameScene extends Phaser.Scene {
         ) {
           // Immediate respawn
           this.arrowFired = false;
-          this.arrow.body.stop();
-          this.arrow.body.allowGravity = false;
+          const body = this.getArrowBody();
+          body.stop();
+          body.setAllowGravity(false);
           this.arrow.setPosition(this.startX, this.startY);
           this.arrow.setRotation(0);
           this.aimLine.setVisible(true);
@@ -232,11 +241,11 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-  endGame(result) {
+  endGame(result: string) {
     if (this.gameOver) return;
     this.gameOver = true;
 
-    this.arrow.body.setVelocity(0);
+    this.getArrowBody().setVelocity(0, 0);
 
     if (result.includes("YES")) {
       // Special YES celebration!
