@@ -14,6 +14,7 @@ export default class GameScene extends Phaser.Scene {
   gameOver!: boolean;
   startX!: number;
   startY!: number;
+  isAiming!: boolean;
 
   constructor() {
     super("game");
@@ -74,6 +75,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.gameOver = false;
+    this.isAiming = false;
 
     this.scale.on("resize", (gameSize: Phaser.Structs.Size) => {
       const { width, height } = gameSize;
@@ -120,9 +122,11 @@ export default class GameScene extends Phaser.Scene {
     // Aim line (dotted)
     this.aimLine = this.add.graphics();
 
-    // Input
+    // Input - NEW: Use pointerdown to START aiming, pointerup to SHOOT
+    this.input.on("pointerdown", this.startAiming, this);
     this.input.on("pointermove", this.aim, this);
-    this.input.on("pointerdown", this.shoot, this);
+    this.input.on("pointerup", this.shoot, this);
+    
     this.input.once("pointerdown", () => {
       if (this.sound instanceof Phaser.Sound.WebAudioSoundManager) {
         this.sound.context.resume();
@@ -155,8 +159,15 @@ export default class GameScene extends Phaser.Scene {
     this.startY = this.arrow.y;
   }
 
-  aim(pointer: Phaser.Input.Pointer) {
+  startAiming(pointer: Phaser.Input.Pointer) {
     if (this.arrowFired) return;
+    this.isAiming = true;
+    this.aimLine.setVisible(true);
+    this.aim(pointer);
+  }
+
+  aim(pointer: Phaser.Input.Pointer) {
+    if (this.arrowFired || !this.isAiming) return;
 
     // Clear previous line
     this.aimLine.clear();
@@ -201,9 +212,10 @@ export default class GameScene extends Phaser.Scene {
 
   shoot(pointer: Phaser.Input.Pointer) {
     const body = this.getArrowBody();
-    if (this.arrowFired) return;
+    if (this.arrowFired || !this.isAiming) return;
 
     this.arrowFired = true;
+    this.isAiming = false;
     body.setAllowGravity(true);
 
     const dx = pointer.x - this.arrow.x;
@@ -231,12 +243,13 @@ export default class GameScene extends Phaser.Scene {
         ) {
           // Immediate respawn
           this.arrowFired = false;
+          this.isAiming = false;
           const body = this.getArrowBody();
           body.stop();
           body.setAllowGravity(false);
           this.arrow.setPosition(this.startX, this.startY);
           this.arrow.setRotation(0);
-          this.aimLine.setVisible(true);
+          this.aimLine.setVisible(false);
         }
       }
     }
