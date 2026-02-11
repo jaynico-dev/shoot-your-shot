@@ -40,7 +40,7 @@ export default class GameScene extends Phaser.Scene {
       "Ooh Hearts… Cupid laughs at your aim! 💘",
       "Cupid's trolling you! 😎💘 Aim better next time!",
       "Dodging hearts is harder than dodging love! ❤️💨",
-      "Oops! Someone got heartbroken 😏… But love waits!",
+      "Oops! Someone got heart-attacked 😏… But love waits!",
       "Yikes! Hearts everywhere! ❤️🤯 Even arrows can't save you!",
       "So close… yet so covered in love! 💖😂",
       "Careful! Love comes at you fast! 💘💨"
