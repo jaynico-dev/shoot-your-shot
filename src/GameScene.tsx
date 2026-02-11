@@ -16,6 +16,7 @@ export default class GameScene extends Phaser.Scene {
   startY!: number;
   isAiming!: boolean;
   bgMusic!: Phaser.Sound.BaseSound;
+  tapToStartText!: Phaser.GameObjects.Text;
 
   constructor() {
     super("game");
@@ -79,15 +80,6 @@ export default class GameScene extends Phaser.Scene {
     this.gameOver = false;
     this.isAiming = false;
 
-    // Start background music
-    if (!this.bgMusic || !this.bgMusic.isPlaying) {
-      this.bgMusic = this.sound.add("bgm", { 
-        loop: true, 
-        volume: 0.5 
-      });
-      this.bgMusic.play();
-    }
-
     this.scale.on("resize", (gameSize: Phaser.Structs.Size) => {
       const { width, height } = gameSize;
       this.cameras.resize(width, height);
@@ -100,6 +92,23 @@ export default class GameScene extends Phaser.Scene {
       color: "#ff3366",
       fontStyle: "bold",
     }).setOrigin(0.5);
+
+    // Tap to start instruction
+    this.tapToStartText = this.add.text(180, 400, "👆 Tap to start 👆", {
+      fontSize: "18px",
+      color: "#ff3366",
+      fontStyle: "bold",
+      align: "center"
+    }).setOrigin(0.5).setAlpha(0.8);
+
+    // Make it pulse to draw attention
+    this.tweens.add({
+      targets: this.tapToStartText,
+      alpha: 0.3,
+      duration: 800,
+      yoyo: true,
+      repeat: -1
+    });
 
     // YES target
     this.yesTarget = this.add.rectangle(90, 220, 80, 40, 0xff5c8a);
@@ -138,9 +147,25 @@ export default class GameScene extends Phaser.Scene {
     this.input.on("pointermove", this.aim, this);
     this.input.on("pointerup", this.shoot, this);
     
+    // Start music on first interaction (required for browser autoplay policy)
     this.input.once("pointerdown", () => {
       if (this.sound instanceof Phaser.Sound.WebAudioSoundManager) {
         this.sound.context.resume();
+      }
+      
+      // Remove tap to start text
+      if (this.tapToStartText) {
+        this.tweens.killTweensOf(this.tapToStartText);
+        this.tapToStartText.destroy();
+      }
+      
+      // Start background music on first tap/click
+      if (!this.bgMusic || !this.bgMusic.isPlaying) {
+        this.bgMusic = this.sound.add("bgm", { 
+          loop: true, 
+          volume: 0.5 
+        });
+        this.bgMusic.play();
       }
     });
 
