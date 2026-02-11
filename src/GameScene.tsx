@@ -15,6 +15,7 @@ export default class GameScene extends Phaser.Scene {
   startX!: number;
   startY!: number;
   isAiming!: boolean;
+  bgMusic!: Phaser.Sound.BaseSound;
 
   constructor() {
     super("game");
@@ -23,6 +24,7 @@ export default class GameScene extends Phaser.Scene {
   preload() {
     this.load.image("arrow", "./arrow.png");
     this.load.image("heart", "./heart.png");
+    this.load.audio("bgm", "./valentine-bgm.mp3");
     }
 
   create() {
@@ -76,6 +78,15 @@ export default class GameScene extends Phaser.Scene {
 
     this.gameOver = false;
     this.isAiming = false;
+
+    // Start background music
+    if (!this.bgMusic || !this.bgMusic.isPlaying) {
+      this.bgMusic = this.sound.add("bgm", { 
+        loop: true, 
+        volume: 0.5 
+      });
+      this.bgMusic.play();
+    }
 
     this.scale.on("resize", (gameSize: Phaser.Structs.Size) => {
       const { width, height } = gameSize;
