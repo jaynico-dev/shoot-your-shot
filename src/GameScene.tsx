@@ -20,6 +20,7 @@ export default class GameScene extends Phaser.Scene {
   bgMusic!: Phaser.Sound.BaseSound;
   tapToStartText!: Phaser.GameObjects.Text;
   catSprite!: Phaser.GameObjects.Sprite;
+  catCentered: boolean = false;
 
   constructor() {
     super("game");
@@ -208,12 +209,13 @@ export default class GameScene extends Phaser.Scene {
     this.startX = this.arrow.x;
     this.startY = this.arrow.y;
 
-    // Position the HTML cat element
+    // Position the HTML cat element within game view
     const catElement = document.getElementById('cat-gif');
-    if (catElement) {
-      const { height } = this.scale;
-      catElement.style.bottom = `${60}px`;
-      catElement.style.left = `${60}px`;
+    const gameContainer = document.getElementById('game');
+    if (catElement && gameContainer) {
+      catElement.style.position = 'absolute';
+      catElement.style.pointerEvents = 'none'; // don't block clicks
+      this.updateCatPosition(catElement, gameContainer);
     }
     
     // Update position on resize
@@ -221,10 +223,9 @@ export default class GameScene extends Phaser.Scene {
       const { width, height } = gameSize;
       this.cameras.resize(width, height);
       
-      // Update cat position if needed
-      if (catElement) {
-        catElement.style.bottom = `${60}px`;
-        catElement.style.left = `${60}px`;
+      // Update cat position within game view
+      if (catElement && gameContainer) {
+        this.updateCatPosition(catElement, gameContainer);
       }
     });
   }
@@ -442,6 +443,11 @@ export default class GameScene extends Phaser.Scene {
         repeat: -1  // -1 means infinite!
       });
 
+      // Animate cat to center after YES
+      const catElement = document.getElementById('cat-gif');
+      if (catElement) {
+        this.moveCatToCenter(catElement);
+      }
     } else {
       // NO result (confirmed rejection)
       this.add.rectangle(180, 320, 280, 120, 0xffffff);
@@ -451,5 +457,40 @@ export default class GameScene extends Phaser.Scene {
         fontStyle: "bold",
       }).setOrigin(0.5);
     }
+  }
+
+  private updateCatPosition(catElement: HTMLElement, gameContainer: HTMLElement) {
+    if (this.catCentered) return; // skip if cat should stay at center
+
+    const gameRect = gameContainer.getBoundingClientRect();
+    
+    // Make cat small
+    catElement.style.width = "60px";
+    catElement.style.height = "auto";
+    
+    // Position cat at bottom-left with padding
+    const padding = 10;
+    catElement.style.left = `${gameRect.left + padding}px`;
+    catElement.style.top = `${gameRect.bottom - catElement.offsetHeight - padding}px`;
+  }
+
+  private moveCatToCenter(catElement: HTMLElement) {
+    const gameContainer = document.getElementById('game');
+    if (!catElement || !gameContainer) return;
+
+    this.catCentered = true; // stop further repositioning
+
+    const gameRect = gameContainer.getBoundingClientRect();
+
+    // Center horizontally
+    const targetX = gameRect.left + gameRect.width / 2 - 100 / 2; // new width = #px
+    // Place just below YES message box
+    const targetY = gameRect.top + gameRect.height / 2 + 150;
+
+    // Move and scale up
+    catElement.style.left = `${targetX}px`;
+    catElement.style.top = `${targetY}px`;
+    catElement.style.width = "100px"; // larger size
+    catElement.style.height = "auto"; // maintain aspect ratio
   }
 }
