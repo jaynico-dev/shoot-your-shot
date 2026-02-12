@@ -87,6 +87,13 @@ export default class NoChallengeScene extends Phaser.Scene {
       callback: this.tick,
       callbackScope: this,
     });
+
+    // Disable cat clicking in NoChallengeScene
+    const catElement = document.getElementById("cat-gif");
+    if (catElement) {
+      catElement.style.pointerEvents = "none";
+      catElement.style.cursor = "default";
+    }
   }
 
   spawnHeart() {
