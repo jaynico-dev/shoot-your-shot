@@ -5,9 +5,16 @@
     <link rel="icon" href="./heart.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Shoot Your Shot</title>
-    <script type="module" crossorigin src="/shoot-your-shot/assets/index-BgdSpIiO.js"></script>
+    <script type="module" crossorigin src="/shoot-your-shot/assets/index-CC-5ze3L.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="game"></div>
+    <img id="cat-gif" src="./cat.gif" alt="cat" style="pointer-events: none; animation: catBounce 1s ease-in-out infinite; z-index: 1000;" />
+    <style>
+      @keyframes catBounce {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+    </style>
   </body>
 </html>
