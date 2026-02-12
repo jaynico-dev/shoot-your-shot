@@ -7,7 +7,7 @@ export default class NoChallengeScene extends Phaser.Scene {
   hearts!: Phaser.Physics.Arcade.Group;
 
   hits = 0;
-  timeLeft = 30;
+  timeLeft = 40;
 
   hitText!: Phaser.GameObjects.Text;
   timerText!: Phaser.GameObjects.Text;
@@ -19,7 +19,7 @@ export default class NoChallengeScene extends Phaser.Scene {
   init() {
     this.endTriggered = false;
     this.hits = 0;
-    this.timeLeft = 30;
+    this.timeLeft = 40;
   }
 
   preload() {
@@ -71,12 +71,12 @@ export default class NoChallengeScene extends Phaser.Scene {
 
     // UI
     this.hitText = this.add.text(20, 20, `Hits: ${this.hits} / 15`, {
-      fontSize: "16px",
+      fontSize: "20px",
       color: "#ff3366",
     });
 
     this.timerText = this.add.text(width - 20, 20, `${this.timeLeft}s`, {
-      fontSize: "16px",
+      fontSize: "20px",
       color: "#ff3366",
     }).setOrigin(1, 0);
 
@@ -127,7 +127,7 @@ export default class NoChallengeScene extends Phaser.Scene {
     this.timerText.setText(`${this.timeLeft}s`);
 
     // Increase heart spawn rate when time hits 7 seconds
-    if (this.timeLeft === 20) {
+    if (this.timeLeft === 30) {
       this.time.removeAllEvents();
       
       // Faster spawn - every 250ms instead of 400ms

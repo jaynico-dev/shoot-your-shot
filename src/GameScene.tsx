@@ -92,7 +92,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Question
     this.add.text(180, 60, "Will you be my Valentine?", {
-      fontSize: "20px",
+      fontSize: "22px",
       color: "#ff3366",
       fontStyle: "bold",
     }).setOrigin(0.5);
@@ -172,7 +172,6 @@ export default class GameScene extends Phaser.Scene {
       }
     });
 
-
     // Collisions
     this.physics.add.collider(this.arrow, this.yesTarget, () => {
         this.particles.emitParticleAt(
@@ -214,7 +213,15 @@ export default class GameScene extends Phaser.Scene {
     const gameContainer = document.getElementById('game');
     if (catElement && gameContainer) {
       catElement.style.position = 'absolute';
-      catElement.style.pointerEvents = 'none'; // don't block clicks
+      catElement.style.pointerEvents = 'auto';
+      catElement.style.cursor = 'pointer';
+      catElement.addEventListener("click", () => {
+        window.open(
+          "https://github.com/jaynico-dev/shoot-your-shot",
+          "_blank",
+          "noopener,noreferrer"
+        );
+      });
       this.updateCatPosition(catElement, gameContainer);
     }
     
@@ -474,23 +481,60 @@ export default class GameScene extends Phaser.Scene {
     catElement.style.top = `${gameRect.bottom - catElement.offsetHeight - padding}px`;
   }
 
-  private moveCatToCenter(catElement: HTMLElement) {
-    const gameContainer = document.getElementById('game');
-    if (!catElement || !gameContainer) return;
+  private moveCatToCenter(originalCat: HTMLElement) {
+    const gameContainer = document.getElementById("game");
+    if (!originalCat || !gameContainer) return;
 
-    this.catCentered = true; // stop further repositioning
+    this.catCentered = true;
 
     const gameRect = gameContainer.getBoundingClientRect();
 
-    // Center horizontally
-    const targetX = gameRect.left + gameRect.width / 2 - 100 / 2; // new width = #px
-    // Place just below YES message box
+    // Remove existing extra cats if any (prevents duplicates on replay)
+    const oldClones = document.querySelectorAll(".celebration-cat");
+    oldClones.forEach(cat => cat.remove());
+
+    // Base size
+    const newSize = 100;
+    const spacing = 120; // distance between cats
+
+    // Center reference point
+    const centerX = gameRect.left + gameRect.width / 2;
     const targetY = gameRect.top + gameRect.height / 2 + 150;
 
-    // Move and scale up
-    catElement.style.left = `${targetX}px`;
-    catElement.style.top = `${targetY}px`;
-    catElement.style.width = "100px"; // larger size
-    catElement.style.height = "auto"; // maintain aspect ratio
+    // Convert original into celebration cat
+    originalCat.classList.add("celebration-cat");
+    originalCat.style.width = `${newSize}px`;
+    originalCat.style.height = "auto";
+
+    // Position LEFT cat
+    originalCat.style.left = `${centerX - spacing - newSize / 2}px`;
+    originalCat.style.top = `${targetY}px`;
+
+    // Create 2 clones
+    for (let i = 0; i < 2; i++) {
+      const clone = originalCat.cloneNode(true) as HTMLElement;
+
+      clone.classList.add("celebration-cat");
+      clone.style.position = "absolute";
+      clone.style.pointerEvents = "auto";
+      clone.style.cursor = "pointer";
+      clone.style.transition = "all 1.2s ease-in-out";
+
+      clone.addEventListener("click", () => {
+        window.open(
+          "https://github.com/jaynico-dev/shoot-your-shot",
+          "_blank",
+          "noopener,noreferrer"
+        );
+      });
+
+      const offset = i === 0 ? 0 : spacing;
+
+      clone.style.left = `${centerX + offset - newSize / 2}px`;
+      clone.style.top = `${targetY}px`;
+      clone.style.width = `${newSize}px`;
+
+      document.body.appendChild(clone);
+    }
   }
 }
