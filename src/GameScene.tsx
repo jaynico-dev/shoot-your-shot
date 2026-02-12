@@ -8,6 +8,8 @@ export default class GameScene extends Phaser.Scene {
   arrow!: Phaser.Physics.Arcade.Sprite;
   yesTarget!: Phaser.GameObjects.Rectangle;
   noTarget!: Phaser.GameObjects.Rectangle;
+  yesText!: Phaser.GameObjects.Text;
+  noText!: Phaser.GameObjects.Text;
   aimLine!: Phaser.GameObjects.Graphics;
   particles!: Phaser.GameObjects.Particles.ParticleEmitter;
   arrowFired!: boolean;
@@ -17,6 +19,7 @@ export default class GameScene extends Phaser.Scene {
   isAiming!: boolean;
   bgMusic!: Phaser.Sound.BaseSound;
   tapToStartText!: Phaser.GameObjects.Text;
+  catSprite!: Phaser.GameObjects.Sprite;
 
   constructor() {
     super("game");
@@ -26,7 +29,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.image("arrow", "./arrow.png");
     this.load.image("heart", "./heart.png");
     this.load.audio("bgm", "./valentine-bgm.mp3");
-    }
+  }
 
   create() {
     const data = this.scene.settings.data as any;
@@ -112,12 +115,12 @@ export default class GameScene extends Phaser.Scene {
 
     // YES target
     this.yesTarget = this.add.rectangle(90, 220, 80, 40, 0xff5c8a);
-    this.add.text(90, 220, "YES", { color: "#fff" }).setOrigin(0.5);
+    this.yesText = this.add.text(90, 220, "YES", { color: "#fff" }).setOrigin(0.5);
     this.yesTarget.setScale(1.5);
 
     // NO target
     this.noTarget = this.add.rectangle(270, 220, 80, 40, 0x555555);
-    this.add.text(270, 220, "NO", { color: "#fff" }).setOrigin(0.5);
+    this.noText = this.add.text(270, 220, "NO", { color: "#fff" }).setOrigin(0.5);
     this.noTarget.setScale(0.5);
 
     this.physics.add.existing(this.yesTarget, true);
@@ -137,7 +140,6 @@ export default class GameScene extends Phaser.Scene {
       this.arrow.width * 0.35,
       this.arrow.height * 0.1
     );
-
 
     // Aim line (dotted)
     this.aimLine = this.add.graphics();
@@ -176,6 +178,18 @@ export default class GameScene extends Phaser.Scene {
             this.yesTarget.x,
             this.yesTarget.y
         );
+        
+        // Hide the NO target and its text
+        this.tweens.add({
+            targets: [this.noTarget, this.noText],
+            alpha: 0,
+            duration: 400,
+            onComplete: () => {
+                this.noTarget.setVisible(false);
+                this.noText.setVisible(false);
+            }
+        });
+        
         this.endGame("YES 💖");
     });
 
@@ -193,6 +207,26 @@ export default class GameScene extends Phaser.Scene {
 
     this.startX = this.arrow.x;
     this.startY = this.arrow.y;
+
+    // Position the HTML cat element
+    const catElement = document.getElementById('cat-gif');
+    if (catElement) {
+      const { height } = this.scale;
+      catElement.style.bottom = `${60}px`;
+      catElement.style.left = `${60}px`;
+    }
+    
+    // Update position on resize
+    this.scale.on("resize", (gameSize: Phaser.Structs.Size) => {
+      const { width, height } = gameSize;
+      this.cameras.resize(width, height);
+      
+      // Update cat position if needed
+      if (catElement) {
+        catElement.style.bottom = `${60}px`;
+        catElement.style.left = `${60}px`;
+      }
+    });
   }
 
   startAiming(pointer: Phaser.Input.Pointer) {
@@ -299,6 +333,23 @@ export default class GameScene extends Phaser.Scene {
     if (result.includes("YES")) {
       // Special YES celebration!
       const { width, height } = this.scale;
+      
+      // Calculate center position
+      // X: center of screen
+      // Y: center between question (y=60) and where message will appear (y=320)
+      const centerX = width / 2;
+      const questionY = 10;
+      const messageY = height / 2;
+      const centerY = (questionY + messageY) / 2;
+      
+      // Animate YES target and text to center
+      this.tweens.add({
+        targets: [this.yesTarget, this.yesText],
+        x: centerX,
+        y: centerY,
+        duration: 800,
+        ease: "Power2"
+      });
       
       // Infinite fireworks of hearts everywhere!
       const heartExplosion = () => {
