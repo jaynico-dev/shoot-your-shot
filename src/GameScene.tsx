@@ -26,12 +26,6 @@ export default class GameScene extends Phaser.Scene {
     super("game");
   }
 
-  preload() {
-    this.load.image("arrow", "./arrow.png");
-    this.load.image("heart", "./heart.png");
-    this.load.audio("bgm", "./valentine-bgm.mp3");
-  }
-
   create() {
     const data = this.scene.settings.data as any;
 
@@ -150,25 +144,11 @@ export default class GameScene extends Phaser.Scene {
     this.input.on("pointermove", this.aim, this);
     this.input.on("pointerup", this.shoot, this);
     
-    // Start music on first interaction (required for browser autoplay policy)
+    // Remove tap to start text on first interaction
     this.input.once("pointerdown", () => {
-      if (this.sound instanceof Phaser.Sound.WebAudioSoundManager) {
-        this.sound.context.resume();
-      }
-      
-      // Remove tap to start text
       if (this.tapToStartText) {
         this.tweens.killTweensOf(this.tapToStartText);
         this.tapToStartText.destroy();
-      }
-      
-      // Start background music on first tap/click
-      if (!this.bgMusic || !this.bgMusic.isPlaying) {
-        this.bgMusic = this.sound.add("bgm", { 
-          loop: true, 
-          volume: 0.5 
-        });
-        this.bgMusic.play();
       }
     });
 

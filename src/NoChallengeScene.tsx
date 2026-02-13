@@ -22,14 +22,6 @@ export default class NoChallengeScene extends Phaser.Scene {
     this.timeLeft = 40;
   }
 
-  preload() {
-    this.load.image("unamused", "./face-emotions/unamused-face.png");
-    this.load.image("poker", "./face-emotions/poker-face.png");
-    this.load.image("amused", "./face-emotions/amused-face.png");
-    this.load.image("love", "./face-emotions/love-face.png");
-    this.load.audio("bgm", "./valentine-bgm.mp3");
-  }
-
   create() {
     const { width, height } = this.scale;
 

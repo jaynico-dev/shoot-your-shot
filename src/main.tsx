@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import PreloadScene from "./PreloadScene";
 import GameScene from "./GameScene";
 import NoChallengeScene from "./NoChallengeScene";
 
@@ -19,7 +20,7 @@ const config: Phaser.Types.Core.GameConfig = {
     arcade: { debug: false },
   },
 
-  scene: [GameScene, NoChallengeScene],
+  scene: [PreloadScene, GameScene, NoChallengeScene],
 };
 
 new Phaser.Game(config);
