@@ -385,7 +385,7 @@ export default class GameScene extends Phaser.Scene {
         "HA! You actually did it! 😎\nCupid would be proud!",
         "YESSS! 🎉💖\nBest. Shot. Ever.",
         "YOU DID IT! 💘✨\nWorth all those misses, huh?",
-        "BOOM! Direct hit! 💥❤️\nYou're officially smooth!",
+        "BOOM! Direct hit! 💥❤️\nThat's my Valentine!!",
         "NAILED IT! 🏹💕\nGuess love wins after all!",
         "SCORE! 🎊💖\nThat's my Valentine!",
         "PERFECT AIM! 🎯❤️\nCupid's got nothing on you!"
@@ -419,7 +419,7 @@ export default class GameScene extends Phaser.Scene {
       // Cheeky subtitle
       const subText = this.add.text(width / 2, height / 2 + 50, 
         "Finally got the right one! 😏", {
-        fontSize: "14px",
+        fontSize: "15px",
         color: "#666",
         fontStyle: "italic",
         align: "center"
