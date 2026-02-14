@@ -500,14 +500,6 @@ export default class GameScene extends Phaser.Scene {
       clone.style.cursor = "pointer";
       clone.style.transition = "all 1.2s ease-in-out";
 
-      clone.addEventListener("click", () => {
-        window.open(
-          "https://github.com/jaynico-dev/shoot-your-shot",
-          "_blank",
-          "noopener,noreferrer"
-        );
-      });
-
       const offset = i === 0 ? 0 : spacing;
 
       clone.style.left = `${centerX + offset - newSize / 2}px`;
