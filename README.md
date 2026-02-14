@@ -29,7 +29,7 @@ Deploy (uses `gh-pages`):
 npm run deploy
 ```
 
-## Project Structure (high level)
+## Project Structure
 
 - `src/` — TypeScript source (Phaser scenes, React entry)
 - `public/` — static assets (faces, images, gifs)
