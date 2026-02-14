@@ -21,6 +21,7 @@ export default class GameScene extends Phaser.Scene {
   tapToStartText!: Phaser.GameObjects.Text;
   catSprite!: Phaser.GameObjects.Sprite;
   catCentered: boolean = false;
+  catClickHandler!: () => void;
 
   constructor() {
     super("game");
@@ -195,13 +196,20 @@ export default class GameScene extends Phaser.Scene {
       catElement.style.position = 'absolute';
       catElement.style.pointerEvents = 'auto';
       catElement.style.cursor = 'pointer';
-      catElement.addEventListener("click", () => {
+      
+      // Store the click handler so we can remove it later
+      this.catClickHandler = () => {
         window.open(
           "https://github.com/jaynico-dev/shoot-your-shot",
           "_blank",
           "noopener,noreferrer"
         );
-      });
+      };
+      
+      catElement.addEventListener("click", this.catClickHandler);
+      // Also handle touch events explicitly for mobile
+      catElement.addEventListener("touchend", this.catClickHandler);
+      
       this.updateCatPosition(catElement, gameContainer);
     }
     
@@ -467,6 +475,14 @@ export default class GameScene extends Phaser.Scene {
 
     this.catCentered = true;
 
+    if (this.catClickHandler) {
+      originalCat.removeEventListener("click", this.catClickHandler);
+      originalCat.removeEventListener("touchend", this.catClickHandler);
+    }
+
+    originalCat.style.pointerEvents = "none";
+    originalCat.style.cursor = "default";
+
     const gameRect = gameContainer.getBoundingClientRect();
 
     // Remove existing extra cats if any
@@ -483,9 +499,6 @@ export default class GameScene extends Phaser.Scene {
     originalCat.classList.add("celebration-cat");
     originalCat.style.width = `${newSize}px`;
     originalCat.style.height = "auto";
-
-    originalCat.style.pointerEvents = "none";
-    originalCat.style.cursor = "default";
 
     // Position LEFT cat
     originalCat.style.left = `${centerX - spacing - newSize / 2}px`;
