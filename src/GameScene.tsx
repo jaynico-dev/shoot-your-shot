@@ -469,15 +469,13 @@ export default class GameScene extends Phaser.Scene {
 
     const gameRect = gameContainer.getBoundingClientRect();
 
-    // Remove existing extra cats if any (prevents duplicates on replay)
+    // Remove existing extra cats if any
     const oldClones = document.querySelectorAll(".celebration-cat");
     oldClones.forEach(cat => cat.remove());
 
-    // Base size
     const newSize = 100;
-    const spacing = 120; // distance between cats
+    const spacing = 120;
 
-    // Center reference point
     const centerX = gameRect.left + gameRect.width / 2;
     const targetY = gameRect.top + gameRect.height / 2 + 150;
 
@@ -485,6 +483,9 @@ export default class GameScene extends Phaser.Scene {
     originalCat.classList.add("celebration-cat");
     originalCat.style.width = `${newSize}px`;
     originalCat.style.height = "auto";
+
+    originalCat.style.pointerEvents = "none";
+    originalCat.style.cursor = "default";
 
     // Position LEFT cat
     originalCat.style.left = `${centerX - spacing - newSize / 2}px`;
@@ -496,9 +497,9 @@ export default class GameScene extends Phaser.Scene {
 
       clone.classList.add("celebration-cat");
       clone.style.position = "absolute";
-      clone.style.pointerEvents = "auto";
-      clone.style.cursor = "pointer";
-      clone.style.transition = "all 1.2s ease-in-out";
+
+      clone.style.pointerEvents = "none";
+      clone.style.cursor = "default";
 
       const offset = i === 0 ? 0 : spacing;
 
